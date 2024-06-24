@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <string.h>
+#include <unistd.h>
 
 // Estructura para representar un auto (nodo de la lista)
 typedef struct Auto {
@@ -12,6 +13,8 @@ typedef struct Auto {
     struct Auto* siguiente;
     struct Auto* anterior; 
 } Auto;
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 Auto EpacioVacio = {0,"E", 'F', 4, NULL, NULL};
 
@@ -118,7 +121,7 @@ Auto* inicializarAuto(const char* direccion) {
     snprintf(nuevoAuto->id, sizeof(nuevoAuto->id), "auto%02d", contador);
     contador++;
 
-    nuevoAuto->estado = 4;
+    nuevoAuto->estado = 4; // inicializa en estado de espera
     nuevoAuto->hilo = hiloA;
     // Asignar la dirección
     nuevoAuto->direccion = direccion[0]; // Tomamos el primer carácter
@@ -128,81 +131,75 @@ Auto* inicializarAuto(const char* direccion) {
     return nuevoAuto;
 }
 
-// int main() {
-//     ListaDobleEnlazada miLista;
-//     inicializarLista(&miLista);
-
-//     // Crear algunos autos y agregarlos a la lista
-//     Auto* auto1 = inicializarAuto("I");
-//     Auto* auto2 = inicializarAuto("D");
-//     Auto* auto3 = inicializarAuto("I");
-//     //Auto* auto1 = (Auto*)malloc(sizeof(Auto));
-    
-    
-//     // Inicializa los campos de auto1 según tus necesidades
-//     insertarAlFinal(&miLista, auto1);
-//     insertarAlFinal(&miLista, auto2);
-//     insertarAlFinal(&miLista, auto3);
-
-//     // Imprimir la lista
-//     printf("Lista de autos:\n");
-//     imprimirLista(&miLista);
-
-//     // Buscar un nodo por ID
-//     const char* idBuscado = "auto01";
-//     Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
-//     if (nodoEncontrado != NULL) {
-//         printf("Nodo encontrado: ID: %s, Dirección: %c\n", nodoEncontrado->id, nodoEncontrado->direccion);
-//     } else {
-//         printf("Nodo con ID %s no encontrado.\n", idBuscado);
-//     }
-
-//     // Eliminar un nodo (por ejemplo, auto1)
-//     eliminarNodo(&miLista, auto1);
-    
-//     printf("\nLista de autos:\n");
-//     imprimirLista(&miLista);
-//     // Liberar memoria (si es necesario)
-//     // ...
-
-//     return 0;
-// }
-
 // Imprimir el puente
 void imprimirPuente() 
 {
-    char fle[2];
-    char dir[10];
-    char id_0[7];
+    char fle_0[3], fle_1[3], fle_2[3];
+    char dir_0[11], dir_1[11], dir_2[11];
+    char id_0[7], id_1[7], id_2[7];
 
-    if (ArrPuente[0].direccion == "I")
+    if (ArrPuente[0].direccion == 'I')
     {
-        strcpy(fle,">>");
-        strcpy(dir,">>>>>>>>>>");
+        strcpy(fle_0,">>");
+        strcpy(dir_0,">>>>>>>>>>");
         strcpy(id_0, ArrPuente[0].id);
     }
-    else if (ArrPuente[0].direccion == "D")
+    else if (ArrPuente[0].direccion == 'D')
     {
-        strcpy(fle,"<<");
-        strcpy(dir,"<<<<<<<<<<");
+        strcpy(fle_0,"<<");
+        strcpy(dir_0,"<<<<<<<<<<");
         strcpy(id_0, ArrPuente[0].id);
     }
     else
     {
-        strcpy(fle,"==");
-        strcpy(dir,"==========");
+        strcpy(fle_0,"==");
+        strcpy(dir_0,"==========");
         strcpy(id_0,"======");      
     }
 
-
+    if (ArrPuente[1].direccion == 'I')
     {
-
+        strcpy(fle_1,">>");
+        strcpy(dir_1,">>>>>>>>>>");
+        strcpy(id_1, ArrPuente[1].id);
     }
+    else if (ArrPuente[1].direccion == 'D')
+    {
+        strcpy(fle_1,"<<");
+        strcpy(dir_1,"<<<<<<<<<<");
+        strcpy(id_1, ArrPuente[1].id);
+    }
+    else
+    {
+        strcpy(fle_1,"==");
+        strcpy(dir_1,"==========");
+        strcpy(id_1,"======");      
+    }
+
+    if (ArrPuente[2].direccion == 'I')
+    {
+        strcpy(fle_2,">>");
+        strcpy(dir_2,">>>>>>>>>>");
+        strcpy(id_2, ArrPuente[2].id);
+    }
+    else if (ArrPuente[2].direccion == 'D')
+    {
+        strcpy(fle_2,"<<");
+        strcpy(dir_2,"<<<<<<<<<<");
+        strcpy(id_2, ArrPuente[2].id);
+    }
+    else
+    {
+        strcpy(fle_2,"==");
+        strcpy(dir_2,"==========");
+        strcpy(id_2,"======");      
+    }
+
     
     printf("\n==================================================================\n");
-    printf("================%s======>>>>>>>>>>=======>>>>>>>>>>=======\n", &dir);
-    printf("================%s%s%s======>>%s>>=======>>%s>>=======\n",&id_0,  );
-    printf("================%s======>>>>>>>>>>=======>>>>>>>>>>=======\n", &dir);
+    printf("================%s======%s=======%s=======\n", dir_0, dir_1, dir_2);
+    printf("================%s%s%s======%s%s%s=======%s%s%s=======\n",fle_0, id_0,fle_0,fle_1, id_1,fle_1,fle_2, id_2,fle_2);
+    printf("================%s======%s=======%s=======\n", dir_0, dir_1, dir_2);
     printf("==================================================================\n");
 }
 
@@ -223,111 +220,201 @@ int estaVacio(const Auto arr[]) {
 /*#####################################------------- FUNCIONES DE HILOS  -------------#####################################*/
 void funcion ( void *ptr )
 {
+    
+    // // cuando 
+    // //de izquierda a derecha
+    // // mientras el estado esta en espera hace un 
+
+
+
+    // // si no esta vacio y hay coches en el puente:
+    // if (estaVacio(ArrPuente) != 1)
+    // {
+        
+    // }
+
     Auto *actual = (Auto *)ptr;  /* una variable que apunta a un auto */
     
+    // if (actual != NULL)
+    // {
+    //     printf("\nactual no es null\n");
+    // }
+    // else
+    // {
+    //     printf("\nactual es NU:L\n");
+    // }
+    
     
 
-    if (estaVacio(ArrPuente) == 1)
-    {
-        actual->estado = 0;
-        ArrPuente[0] = *actual;
-        contador=contador+1;
+    int actual_estado = 4;
 
-        // Buscar un nodo por ID
-        const char* idBuscado = actual->id;
-        Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
-        if (nodoEncontrado != NULL) {
-            printf("Nodo encontrado: ID: %s, Dirección: %c\n", nodoEncontrado->id, nodoEncontrado->direccion);
-        } else {
-            printf("Nodo con ID %s no encontrado.\n", idBuscado);
-        }
-        // Eliminar un nodo encontrado
-        eliminarNodo(&miLista, nodoEncontrado); 
-    }
-    else
+    printf("la direccion de este hilo es: %c", actual->direccion);
+
+    if (actual->direccion == 'I')
     {
-        if (ArrPuente[0].direccion == actual->direccion)
+        while (actual_estado == 4)
         {
-            if (contador <= 4 )
+            
+            pthread_mutex_lock(&mutex);
+
+            if (estaVacio(ArrPuente) == 1)
             {
                 actual->estado = 0;
-                ArrPuente[2] = ArrPuente[1];
-                ArrPuente[1] = ArrPuente[0];
                 ArrPuente[0] = *actual;
-                contador=contador+1;
+                contador=1;
+                // Buscar un nodo por ID
+                const char* idBuscado = actual->id;
+                Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
+                eliminarNodo(&miLista, nodoEncontrado);
+                actual_estado = 0; 
             }
-            
-            ArrPuente[0].estado == 0;
-        }
-        else
-        {
+            else
+            {
+                if (ArrPuente[0].direccion == actual->direccion)
+                {
+                    if (contador <= 4 )
+                    {
+                        
+                        actual->estado = 0;
+                        ArrPuente[1].estado = 2;
+                        ArrPuente[0].estado = 1;
 
+                        ArrPuente[2] = ArrPuente[1];
+                        ArrPuente[1] = ArrPuente[0];
+                        ArrPuente[0] = *actual;
+                        contador=contador+1;
+                        // Buscar un nodo por ID
+                        const char* idBuscado = actual->id;
+                        Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
+                        eliminarNodo(&miLista, nodoEncontrado); 
+                        actual_estado = 0;
+                    }
+                    else 
+                    {
+                        ArrPuente[2] = ArrPuente[1];
+                        ArrPuente[1] = ArrPuente[0];
+                        ArrPuente[0] = EpacioVacio;
+                        imprimirPuente();
+                        imprimirLista(&miLista); 
+                        //contador=contador+1;
+                    }
+                    
+                    //ArrPuente[0].estado == 0;
+                }
+                else
+                {
+                    ArrPuente[2] = ArrPuente[1];
+                    ArrPuente[1] = ArrPuente[0];
+                    ArrPuente[0] = EpacioVacio;
+                    imprimirPuente();
+                    imprimirLista(&miLista);
+                }
+                
+            }
+            pthread_mutex_unlock(&mutex);
+            sleep(2);
         }
-        
     }
-    
-
-
-    // /* aca se ejecutan las instrucciones */
-    // printf("direccion %c ID %s \n", actual->direccion, actual->id);
-
-    printf("el semforo esta asi: \n");
-    for (size_t i = 0; i < 3; i++)
+    else if (actual->direccion == 'D')
     {
-        if(ArrPuente[i].direccion != 'I' && ArrPuente[i].direccion != 'D')
+        pthread_mutex_lock(&mutex);
+        while (actual_estado == 4)
         {
-            printf("NULL-");
-        }
-        else
-        {
-            printf("| %s |",ArrPuente[i].id);
-        }
-        
-    }
-    // printf("\n");
-    // //pthread_exit(0); /* exit */
-} 
+            if (estaVacio(ArrPuente) == 1)
+            {
+                actual->estado = 2;
+                ArrPuente[2] = *actual;
+                contador=1;
+                // Buscar un nodo por ID
+                const char* idBuscado = actual->id;
+                Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
+                eliminarNodo(&miLista, nodoEncontrado);
+                actual_estado = 2; 
+            }
+            else
+            {
+                if (ArrPuente[2].direccion == actual->direccion)
+                {
+                    if (contador <= 4 )
+                    {
+                        
+                        actual->estado = 2;
+                        ArrPuente[2].estado = 1;
+                        ArrPuente[1].estado = 0;
 
-    // Auto* actual = lista->frente;
-    // //while (actual != NULL) {
-    //     if(actual->direccion == 'I')
-    //     {
-    //         printf("=> %s \n", actual->id);
+                        ArrPuente[2] = *actual;
+                        ArrPuente[1] = ArrPuente[2];
+                        ArrPuente[0] = ArrPuente[1];
+                        contador=contador+1;
+                        // Buscar un nodo por ID
+                        const char* idBuscado = actual->id;
+                        Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
+                        eliminarNodo(&miLista, nodoEncontrado); 
+                        actual_estado = 2;
+                    }
+                    else 
+                    {
+                        ArrPuente[2] = EpacioVacio;
+                        ArrPuente[1] = ArrPuente[2];
+                        ArrPuente[0] = ArrPuente[1];
+                        imprimirPuente();
+                        imprimirLista(&miLista);    
+                        //contador=contador+1;
+                    }
+                    
+                    //ArrPuente[0].estado == 0;
+                }
+                else
+                {
+                    ArrPuente[2] = EpacioVacio;
+                    ArrPuente[1] = ArrPuente[2];
+                    ArrPuente[0] = ArrPuente[1];
+                    imprimirPuente();
+                    imprimirLista(&miLista);
+                }
+                
+            }
+            sleep(2);
+        }
+        pthread_mutex_unlock(&mutex);
+    }
+
+    printf("\n- CERRANDO HILO , %ld -\n", pthread_self());
+    
+    pthread_exit(0); /* exit thread */
+} 
 
 /*#####################################------------- MAIN  -------------#####################################*/
 int main() {
-    // Auto autos[100];
-    // int contador = 0;
 
-    
-    
+
+
     inicializarLista(&miLista);
-
     
     Auto* auto1; // Crear algunos autos y agregarlos a la lista
 
                 auto1 = inicializarAuto("I");
                 insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("D");
-                // insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("I");
-                // insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("D");
-                // insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("I");
-                // insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("D");
-                // insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("D");
-                // insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("D");
-                // insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("D");
-                // insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("D");
-                // insertarAlFinal(&miLista, auto1);
-                // auto1 = inicializarAuto("D");
-                // insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("I");
+                insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("I");
+                insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("D");
+                insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("I");
+                insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("D");
+                insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("D");
+                insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("D");
+                insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("D");
+                insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("D");
+                insertarAlFinal(&miLista, auto1);
+                auto1 = inicializarAuto("D");
+                insertarAlFinal(&miLista, auto1);
                 
 
 
@@ -357,34 +444,51 @@ int main() {
 
         } else if (strcmp(comando, "start") == 0) {
             // Iniciar simulación
-
+            //system("clear");
             Auto* actual = miLista.frente;
+            Auto* siguiente = actual->siguiente;
             //printf("este es el primer auto => %s \n", actual->id);
             
-            pthread_create(&actual->hilo, NULL, (void *) &funcion, actual);
-            pthread_join(actual->hilo, NULL);
-            imprimirPuente();
-            // while (actual != NULL) {
-            //     pthread_create(&actual->hilo, NULL, (void *) &funcion, actual);
-            //     actual = actual->siguiente;
-            //     // if(actual->direccion == 'I')
-            //     // {
-            //     //     printf("=> %s \n", actual->id);
-            //     //     actual = actual->siguiente;
-            //     // }
-            //     // else
-            //     // {
-            //     //     printf("<= %s \n", actual->id);
-            //     //     actual = actual->siguiente;
-            //     // }
-            // }
+            // pthread_create(&actual->hilo, NULL, (void *) &funcion, actual);
+            // pthread_join(actual->hilo, NULL);
+            // imprimirPuente();
+            // imprimirLista(&miLista);
+
+            while (actual->siguiente != NULL) {
+                
+                //sleep(1);
+
+                siguiente = actual->siguiente; //almacena el siguiente auto
+                //printf("\nauto actual: %s auto siguiente %s", actual->id, siguiente->id);
+                
+                
+                pthread_create(&actual->hilo, NULL, (void *) &funcion, actual); // elimina el auto actual
+                pthread_join(actual->hilo, NULL);
+                
+                //eliminarNodo(&miLista, actual); 
+                imprimirPuente();
+                imprimirLista(&miLista);
+                
+                actual = siguiente; //actual ahora almacena el siguiente auto
+
+                if (actual->siguiente == NULL)
+                {
+                    pthread_create(&actual->hilo, NULL, (void *) &funcion, actual); // elimina el auto actual
+                    pthread_join(actual->hilo, NULL);
+                    //eliminarNodo(&miLista, actual); 
+                    imprimirPuente();
+                    imprimirLista(&miLista);
+                }
+                
+                //printf("\nauto actual: %s auto siguiente %s", actual->id, siguiente->id);
+            }
 
 
 
 
 
 
-            printf("Simulación iniciada.\n");
+            //printf("Simulación iniciada.\n");
             //break;
         }
     }
