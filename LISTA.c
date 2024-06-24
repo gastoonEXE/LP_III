@@ -248,7 +248,9 @@ void funcion ( void *ptr )
                 const char* idBuscado = actual->id;
                 Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
                 eliminarNodo(&miLista, nodoEncontrado);
-                actual_estado = 0; 
+                actual_estado = 0;
+                imprimirPuente();
+                imprimirLista(&miLista);
             }
             else
             {
@@ -270,7 +272,8 @@ void funcion ( void *ptr )
                         Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
                         eliminarNodo(&miLista, nodoEncontrado); 
                         actual_estado = 0;
-                        
+                        imprimirPuente();
+                        imprimirLista(&miLista);
                     }
                     else 
                     {
@@ -312,7 +315,9 @@ void funcion ( void *ptr )
                 const char* idBuscado = actual->id;
                 Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
                 eliminarNodo(&miLista, nodoEncontrado);
-                actual_estado = 2; 
+                actual_estado = 2;
+                imprimirPuente();
+                imprimirLista(&miLista); 
             }
             else
             {
@@ -322,18 +327,22 @@ void funcion ( void *ptr )
                     {
                         
                         actual->estado = 2;
+                        
                         ArrPuente[2].estado = 1;
                         ArrPuente[1].estado = 0;
 
-                        ArrPuente[2] = *actual;
-                        ArrPuente[1] = ArrPuente[2];
                         ArrPuente[0] = ArrPuente[1];
+                        ArrPuente[1] = ArrPuente[2];
+                        ArrPuente[2] = *actual;                       
+
                         contador=contador+1;
                         // Buscar un nodo por ID
                         const char* idBuscado = actual->id;
                         Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
                         eliminarNodo(&miLista, nodoEncontrado); 
                         actual_estado = 2;
+                        imprimirPuente();
+                        imprimirLista(&miLista);
                     }
                     else 
                     {
@@ -424,31 +433,24 @@ int main() {
             imprimirLista(&miLista);
 
         } else if (strcmp(comando, "start") == 0) {
-            // Iniciar simulación
-            //system("clear");
+
             Auto* actual = miLista.frente;
             Auto* siguiente = actual->siguiente;
-            //printf("este es el primer auto => %s \n", actual->id);
-            
-            // pthread_create(&actual->hilo, NULL, (void *) &funcion, actual);
-            // pthread_join(actual->hilo, NULL);
-            // imprimirPuente();
-            // imprimirLista(&miLista);
+
 
             while (actual->siguiente != NULL) {
                 
                 //sleep(1);
 
                 siguiente = actual->siguiente; //almacena el siguiente auto
-                //printf("\nauto actual: %s auto siguiente %s", actual->id, siguiente->id);
                 
                 
                 pthread_create(&actual->hilo, NULL, (void *) &funcion, actual); // elimina el auto actual
                 pthread_join(actual->hilo, NULL);
                 
                 //eliminarNodo(&miLista, actual); 
-                imprimirPuente();
-                imprimirLista(&miLista);
+                //imprimirPuente();
+                //imprimirLista(&miLista);
                 
                 actual = siguiente; //actual ahora almacena el siguiente auto
 
@@ -457,20 +459,12 @@ int main() {
                     pthread_create(&actual->hilo, NULL, (void *) &funcion, actual); // elimina el auto actual
                     pthread_join(actual->hilo, NULL);
                     //eliminarNodo(&miLista, actual); 
-                    imprimirPuente();
-                    imprimirLista(&miLista);
+                    //imprimirPuente();
+                    //imprimirLista(&miLista);
                 }
                 
-                //printf("\nauto actual: %s auto siguiente %s", actual->id, siguiente->id);
             }
 
-
-
-
-
-
-            //printf("Simulación iniciada.\n");
-            //break;
         }
     }
 
