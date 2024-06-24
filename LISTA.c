@@ -225,25 +225,7 @@ void funcion ( void *ptr )
     // //de izquierda a derecha
     // // mientras el estado esta en espera hace un 
 
-
-
-    // // si no esta vacio y hay coches en el puente:
-    // if (estaVacio(ArrPuente) != 1)
-    // {
-        
-    // }
-
     Auto *actual = (Auto *)ptr;  /* una variable que apunta a un auto */
-    
-    // if (actual != NULL)
-    // {
-    //     printf("\nactual no es null\n");
-    // }
-    // else
-    // {
-    //     printf("\nactual es NU:L\n");
-    // }
-    
     
 
     int actual_estado = 4;
@@ -288,6 +270,7 @@ void funcion ( void *ptr )
                         Auto* nodoEncontrado = buscarNodoPorID(&miLista, idBuscado);
                         eliminarNodo(&miLista, nodoEncontrado); 
                         actual_estado = 0;
+                        
                     }
                     else 
                     {
@@ -378,9 +361,7 @@ void funcion ( void *ptr )
         }
         pthread_mutex_unlock(&mutex);
     }
-
-    printf("\n- CERRANDO HILO , %ld -\n", pthread_self());
-    
+    //printf("\n- CERRANDO HILO , %ld -\n", pthread_self());
     pthread_exit(0); /* exit thread */
 } 
 
